@@ -2,25 +2,27 @@
 
 [WORK IN PROGRESS]
 
-Let's be real. In the realm of software development and in the startup ecosystem, there is a prevalent misconception that client-side development does not necessitate the rigorous testing 
+Let's be real. In the realm of software development there is a prevalent misconception that client code does not necessitate the rigorous testing 
 or the sophisticated patterns customary in server-side development. For years, I myself perceived the client-side as just a mere extension of the server,
 a simplistic piece that couldn't cause substantial problems. This is wrong, and I was wrong.
 
-Your client will handle significant logic. It will handle concurrent operations. Your server won't serve a clean API. 
-You will have 10 front-end developers pushing code faster than it can be reviewed. They will follow different standards and re-write logic they didn't know existed, 
-introducing different sources of truth for the same feature. You will scale in terms of traffic and human resources.
+Your client will handle significant logic. It will handle concurrent operations. 
+Your server won't serve a clean API. You will have 10 front-end developers pushing code faster than it can be reviewed. They will follow different standards and re-write logic they didn't know existed, 
+introducing different sources of truth for the same feature. Hopefully, you will scale in terms of traffic and human resources.
 
-Sooner or later, you will have to make a change. It's only when you hit rock bottom 
+Sooner or later, you will have to make a change. And it's only when you hit rock bottom 
 that you will find the light: patterns exist for a reason, to solve universally encountered problems.
 
-Something is not supposed to happen ? Make it impossible to happen.
-
-It works and didn't break another feature ? Prove it.
-
-This repository illustrates how to achieve these standards, emphasizing Dependency Injection, the repository pattern, 
-and strict rules enforcement. It offers an unapologetically opinionated view on these matters, that I adhere to as a 
+This repository illustrates how to implement these standards, emphasizing Dependency Injection, the Repository pattern, 
+and strict rules enforcement. It offers an unapologetically opinionated view on these matters, that I follow as a 
 developer and enforce as a team leader. These principles aim to cultivate a coding culture that prioritizes robustness, 
 readability, and maintainability above all else.
+
+The bottom line is simple:
+
+- Something is not supposed to happen ? Make it impossible to happen.
+
+- It works ? It didn't break ? Prove it.
 
 ## Strict code quality enforcement
 
@@ -70,10 +72,33 @@ TypeScript is great*. if you have it, enforce all files to use it in the compile
 
 They are just smaller, easier to read, to test, and became a de-facto standard.
 
-### Dependency Injection 💉
+### Keep a clear separation of concerns
 
-Your code must be testable and tested. Achieving this requires a clear understanding of the testing strategies and best practices.
-One effective approach involves using dependency injection:
+A React application is layered just like a server is layered. The layers are:
+
+- The presentation layer
+- The business logic layer
+- The data access layer
+- The state management layer
+
+They should be kept separate.
+
+### Learn how to test each layer
+
+Each layer has a different testing strategy. 
+
+- The presentation layer is tested with unit tests and snapshot tests. 
+
+- The business logic layer is tested with unit tests. 
+
+- The data access layer is tested with unit tests and integration tests.
+
+- The state management layer is tested with unit tests and integration tests.
+
+### Use dependency Injection between the layers 💉
+
+Your code must be testable and tested. Achieving this requires a clear understanding of the testing strategies.
+One of the most classic and effective approach involves dependency injection:
 
 - Inject dependencies to your business logic layer. This makes the business logic more modular, independent, and therefore more testable.
 - Inject your business logic layer to your components. This allows components to be tested in isolation from the business logic, and vice versa.
@@ -84,22 +109,33 @@ Also understand you have multiple ways to test in React:
 - Snapshot tests on the component
 - Integration tests
 
-### Repository pattern
+Those are considered side effects that should be injected:
+- API calls
+- Redirects
+- Access to local storage
+- Access to cookies
+- Access to the window object
 
-Sometime (God forbids) I saw people performing API calls directly from the state management library, 
-or from the component itself. As stated previously, dependencies must be injected to the business layer, 
-and the business layer must be injected to the component. How do we achieve this ? By grouping dependencies in a repository.
+### Follow the Repository pattern to inject dependencies in the business layer that needs them
+
+Sometime (God forbids) people perform API calls directly from the state management library, 
+or from the component itself. Both are wrong. As stated previously, dependencies must be injected to the business layer, 
+and the business layer must be injected to the component. How do we achieve this ? By grouping dependencies in a repository that 
+will be passed to the . It would be acceptable to perform data fetching from a hook in some very simple situations.
 
 ### Encapsulate Business Logic
 
-I saw business logic happening in components directly. It makes it hard to understand, hard to follow, prone to 
-concurrency issues. It should be encapsulated in a separate layer, very easy to identify.
+We sometime put business logic in components. This is not correct. 
+Business logic should not be all over the place. Business logic should be encapsulated in its own layer. A very simple operation 
+like a filter could be happening in a component. We can consider using useMemo for it.
 
 ### Use pure functions
 
-A function must not modify the state of the application. It must not perform API calls. It must not redirect. It must not perform side effects.
+All functions called by the business logic layer must be pure. A pure function must not modify the state of the application. 
+It must not perform API calls. It must not perform a redirect. It must not perform a side effect. 
+It must not access its outer scope, even in read only.
 
-### Keep the presentation layer out of hooks and business logic
+### Keep the presentation layer out of business logic and hooks
 
 Do not return React elements or components from the business layer or from the hooks.
 
@@ -110,3 +146,5 @@ Following the encapsulation of the business logic, the components should be as d
 ### Minimize libraries
 
 Sorry guys. There is a library for everything, it does not mean we should use a library for everything. It introduces a risk in terms of security, maintainability, and can conflict with other dependencies.
+
+### Do not 
